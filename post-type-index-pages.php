@@ -26,6 +26,11 @@ class Post_Type_Index_Pages {
         add_action('admin_notices', array(&$this, 'admin_notices'));
     }
 
+    /**
+     *  Initialize settings for each registered post type
+     *
+     *  @since 1.0
+     */
     function settings_init() {
 
         $post_types = get_post_types(array('public' => true)); 
@@ -33,6 +38,7 @@ class Post_Type_Index_Pages {
             $obj = get_post_type_object($post_type);
             $post_type_id = $obj->name;
             $post_type_name = $obj->labels->name;
+            $option_group = 'ptip-'.$post_type_id;
 
             $options = array();
             $pages = get_posts(array('post_type' => 'page', 'orderby' => 'title', 'order' => 'ASC'));
@@ -56,13 +62,18 @@ class Post_Type_Index_Pages {
                 )
             );
 
-            $this->settings_objects[$post_type_id] = new PTIP_WordPressSettingsFramework( $settings, 'ptip-'.$post_type_id );
+            $this->settings_objects[$post_type_id] = new PTIP_WordPressSettingsFramework( $settings, $option_group );
+            add_filter( $option_group .'_settings_validate', array(&$this, 'validate_settings') );
         }
 
-
-        //add_filter( $this->wpsf->get_option_group() .'_settings_validate', array(&$this, 'validate_settings') );
     }
     
+    /**
+     *  Add links to the 'Index Page' settings panel
+     *  under each post type's menu
+     *
+     *  @since 1.0
+     */
     function admin_menu() {
       
         $post_types = get_post_types(array('public' => true)); 
@@ -76,8 +87,12 @@ class Post_Type_Index_Pages {
        
     }
     
+    /**
+     *  Render the settings page
+     *
+     *  @since 1.0
+     */
     function settings_page() {
-	    // Your settings page
       $post_type_name = 'Posts';
       $post_type = 'post';
       if (isset($_GET['post_type'])) {
@@ -97,14 +112,24 @@ class Post_Type_Index_Pages {
 		
 	}
 	
+    /**
+     * Validates settings before insertion into the database
+     *
+     * @since 1.0
+     */
 	function validate_settings( $input ) {
-		$output = $input;
-		//$output['coinbase_general_api_key'] = base64_encode($input['coinbase_general_api_key']);
-    return $output;
+        if (!is_array($input)) return $input;
+		$output = array();
+		foreach ($input as $k=>$v) {
+            $output[$k] = intval($v);
+        }
+        return $output;
 	}
 
     /**
      * Displays any errors from the WordPress settings API
+     *
+     * @since 1.0
      */
     function admin_notices()
     {
@@ -113,6 +138,7 @@ class Post_Type_Index_Pages {
     
 
 }
+
 new Post_Type_Index_Pages();
 
 
