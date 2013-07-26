@@ -41,7 +41,7 @@ class Post_Type_Index_Pages {
             $option_group = 'ptip-'.$post_type_id;
 
             $options = array();
-            $pages = get_posts(array('post_type' => 'page', 'orderby' => 'title', 'order' => 'ASC'));
+            $pages = get_posts(array('post_type' => 'page', 'orderby' => 'title', 'order' => 'ASC', 'posts_per_page' => -1));
             foreach ($pages as $page) {
                 $options[$page->ID] = $page->post_title;
             }
@@ -78,6 +78,7 @@ class Post_Type_Index_Pages {
       
         $post_types = get_post_types(array('public' => true)); 
         foreach ( $post_types as $post_type ) {
+            if ($post_type == 'page') continue;
             $obj = get_post_type_object($post_type);
             $post_type_id = $obj->name;
             $slug = 'edit.php';
