@@ -44,7 +44,7 @@ function get_post_type_index_id( $post_type = false ) {
  */
 function ptip_add_nav_classes($classes, $item) {
 	global $post;
-
+	if (!$post) return $classes;
 	$post_id = get_the_ID();
 	$post_type = $post->post_type;
 	$item_id = $item->object_id;
